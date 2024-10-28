@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Countdown Timer</title>
+	<style>
+		body {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			height: 100vh;
+			margin: 0;
+			font-family: serif;
+			background-color: #f0f0f0;
+		}
+
+		#datePickerContainer {
+			margin-bottom: 40px;
+			text-align: center;
+		}
+
+		#datePicker {
+			font-family: serif;
+			font-size: 3em;
+			padding: 10px;
+			width: 400px;
+		}
+
+		#setDateButton {
+			font-family: serif;
+			font-size: 3em;
+			padding: 10px 20px;
+			margin-top: 20px;
+			cursor: pointer;
+			display: block;
+			margin-left: auto;
+			margin-right: auto;
+		}
+
+		#timer {
+			font-size: 10em;
+			text-align: center;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			line-height: 1.2;
+		}
+	</style>
+</head>
+<body>
+	<div id="datePickerContainer">
+		<input type="date" id="datePicker">
+		<button id="setDateButton">Set Date</button>
+	</div>
+	<div id="timer"></div>
+
+	<script>
+		var countdownDate;
+		var timerInterval;
+
+		function updateTimer() {
+			var timerElement = document.getElementById("timer");
+
+			function update() {
+				var currentTime = new Date();
+				var distance = countdownDate - currentTime;
+				var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+				var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+				var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+
+				timerElement.innerHTML = formatTime(days, hours, minutes);
+
+				if (distance <= 0) {
+					clearInterval(timerInterval);
+					timerElement.innerHTML = "0 days<br>0 hours<br>0 minutes";
+				}
+			}
+
+			update();
+			timerInterval = setInterval(update, 1000);
+		}
+
+		function formatTime(days, hours, minutes) {
+			var timeString = "";
+			if (days > 0) {
+				timeString += days + (days === 1 ? " day" : " days") + "<br>";
+			}
+			if (hours >= 0) {
+				timeString += hours + (hours === 1 ? " hour" : " hours") + "<br>";
+			}
+			timeString += minutes + (minutes === 1 ? " minute" : " minutes");
+
+			return timeString;
+		}
+
+		function setDate() {
+			var dateInput = document.getElementById("datePicker");
+			var selectedDate = new Date(dateInput.value);
+			
+			// Set the time to the end of the selected day
+			selectedDate.setHours(23, 59, 59, 999);
+			
+			var now = new Date();
+			
+			if (selectedDate > now) {
+				countdownDate = selectedDate;
+				clearInterval(timerInterval);
+				updateTimer();
+				
+				document.getElementById("datePickerContainer").style.display = "none";
+			} else {
+				alert("Please select a future date.");
+			}
+		}
+
+		window.onload = function() {
+			document.getElementById("setDateButton").addEventListener("click", setDate);
+			
+			var today = new Date();
+			today.setHours(0, 0, 0, 0);  // Set to beginning of today
+			document.getElementById("datePicker").min = today.toISOString().split("T")[0];
+		};
+	</script>
+</body>
+</html>
