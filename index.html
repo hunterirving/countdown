@@ -19,11 +19,16 @@
 			text-align: center;
 		}
 
-		#datePicker {
+		#datePicker, #timePicker {
 			font-family: serif;
 			font-size: 3em;
 			padding: 10px;
 			width: 400px;
+			display: block;
+		}
+
+		#timePicker {
+			margin-top: 20px;
 		}
 
 		#setDateButton {
@@ -50,8 +55,9 @@
 </head>
 <body>
 	<div id="datePickerContainer">
-		<input type="date" id="datePicker">
-		<button id="setDateButton">Set Date</button>
+		<input type="date" id="datePicker" required>
+		<input type="time" id="timePicker" required>
+		<button id="setDateButton">Start Countdown</button>
 	</div>
 	<div id="timer"></div>
 
@@ -96,21 +102,36 @@
 
 		function setDate() {
 			var dateInput = document.getElementById("datePicker");
-			var selectedDate = new Date(dateInput.value);
-			
-			// Set the time to the end of the selected day
-			selectedDate.setHours(23, 59, 59, 999);
-			
+			var timeInput = document.getElementById("timePicker");
+
+			// Validate that both date and time are provided
+			if (!dateInput.value || !timeInput.value) {
+				alert("Please select both a date and time.");
+				return;
+			}
+
+			// Parse the date in local timezone
+			var dateParts = dateInput.value.split("-");
+			var selectedDate = new Date(
+				parseInt(dateParts[0]),
+				parseInt(dateParts[1]) - 1,
+				parseInt(dateParts[2])
+			);
+
+			// Set the time
+			var timeParts = timeInput.value.split(":");
+			selectedDate.setHours(parseInt(timeParts[0]), parseInt(timeParts[1]), 0, 0);
+
 			var now = new Date();
-			
+
 			if (selectedDate > now) {
 				countdownDate = selectedDate;
 				clearInterval(timerInterval);
 				updateTimer();
-				
+
 				document.getElementById("datePickerContainer").style.display = "none";
 			} else {
-				alert("Please select a future date.");
+				alert("Please select a future date and time.");
 			}
 		}
 
